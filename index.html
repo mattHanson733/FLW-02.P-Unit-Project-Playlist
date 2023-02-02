@@ -8,6 +8,9 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"
     integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous" />
   <link href="style.css" rel="stylesheet" type="text/css" />
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+  </style>
 </head>
 
 
@@ -25,7 +28,9 @@
       <input placeholder="Song Link Address" class="song-link" value="" />
     </div>
     <br>
-    <button class="add">Add</button>
+    <button id="addSong" onclick='handleAddSongClick()'>Add</button>
+    <button id="storeUserPlaylistButton" onclick='handleSavePlaylistClick()'>Save Playlist</button>
+    <button id="deleteUserPlaylistButton" onclick='handleDeletePlaylistClick()'>Delete Saved Playlist</button>
   </div>
 
 
@@ -36,15 +41,10 @@
     <h4>Song Link</h4>
   </div>
 
+  <table class="playlistDisplay" id="playlistTable"></table>
 
-  <div class="display">
-    <div class="column display-image"></div>
-    <div class="column display-song"></div>
-    <div class="column display-artist"></div>
-    <div class="column display-link"></div>
-  </div>
 
 </body>
-<script src=script.js></script>
+<script type="text/javascript" src="script.js"></script>
 
 </html>
