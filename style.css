@@ -3,6 +3,14 @@ html, body {
   width: 100%;
 }
 
+body {
+  background: rgb(0,29,41);
+background: linear-gradient(180deg, rgba(0,29,41,1) 0%, rgba(0,53,66,1) 100%);
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  color: white;
+}
+
 h1 {
   text-align: center;
 }
@@ -19,7 +27,7 @@ h1 {
   display: flex;
   justify-content: space-around;
   border-top: 5px solid black;
-  background-color: rgba(76, 175, 80, 0.3)
+  background-color: #015956;
 }
 
 @media screen and (max-width: 600px) {
@@ -75,11 +83,6 @@ button {
   color: black;
 }
 
-body {
-  background: url(https://i.pinimg.com/originals/b8/4f/41/b84f4195a6d33c93d01111287c0c7b7e.jpg);
-color: white;
-}
-
 h4{
   color: white;
 }
@@ -96,4 +99,20 @@ img {
   width: 25vw;
   height: auto;
   padding: 5px;
+}
+
+td {
+  padding: 5px;
+  border-right: double #037469 3px;
+  border-left: double #037469 3px;
+  border-top: none;
+}
+
+tr {
+  border-bottom: double #037469 5px;
+}
+
+form {
+  display: flex;
+  flex-direction: column;
 }
