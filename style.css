@@ -83,6 +83,10 @@ button {
   color: black;
 }
 
+.heading {
+  width: 100%;
+}
+
 h4{
   color: white;
 }
@@ -101,6 +105,10 @@ img {
   padding: 5px;
 }
 
+table {
+  margin-top: 10px;
+}
+
 td {
   padding: 5px;
   border-right: double #037469 3px;
@@ -112,7 +120,3 @@ tr {
   border-bottom: double #037469 5px;
 }
 
-form {
-  display: flex;
-  flex-direction: column;
-}

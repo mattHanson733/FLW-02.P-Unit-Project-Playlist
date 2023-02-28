@@ -1,10 +1,10 @@
 "use strict";
 
 // Variables for storing user input
-const userImgURL = document.querySelector(".image");
-const userSongName = document.querySelector(".song-name");
-const userArtist = document.querySelector(".artist");
-const userSongURL = document.querySelector(".song-link");
+const userImgURL = document.querySelector(".songURL-input");
+const userSongName = document.querySelector(".songName-input");
+const userArtist = document.querySelector(".artist-input");
+const userSongURL = document.querySelector(".songURL-input");
 
 
 let playlistTable = document.querySelector('#playlistTable');
@@ -13,16 +13,7 @@ const addSong = document.getElementById("addSong");
 
 const staged_UserPlaylist = [];
 
-
-class userSongData {
-  constructor(userImageURL, userSongName, userArtist, userSongURL) {
-    console.log('got to userSongData constructor');
-    this.userImageURL = userImageURL,
-      this.userSongName = userSongName,
-      this.userArtist = userArtist,
-      this.userSongURL = userSongURL
-  }
-}
+const deletePlaylistMessage = 'Are you sure you want to delete your stored playlist? This action cannot be undone.';
 
 
 class Song {
@@ -30,6 +21,14 @@ class Song {
 
   static numSongs = 0;
 
+  /** 
+  * Creates a new instance of the Song class.
+  * @constructor
+  * @param {string} imgURL - A link to the cover image of the song
+  * @param {string} songName - The name of the song
+  * @param {string} atrist - The name of the artist of the song
+  * @param {string} songURL - A link to the video of the song
+  */
   constructor(imgURL, songName, artist, songURL) {
     this.songName = songName;
     this.artist = artist;
@@ -38,18 +37,22 @@ class Song {
 
     Song.numSongs++;
     this.#songNumber = Song.numSongs;
-    console.log(this.#songNumber);
   }
 
+  /** 
+  * @returns {number} private songNumber property
+  */
   get songNumber() {
     return this.#songNumber;
   }
 }
 
-
+/** 
+* The default playlist items to render on page load
+*/
 const defaultPlaylistItems = [
   new Song(`./assets/KRS-One_albumCover.jpeg`, `MC’s Act Like They Don’t Know`, `KRS-One`, `https://www.youtube.com/watch?v=zTm0YulSONU`),
-  new Song(`./assets/theLowEndTheory_albumCover.jpeg`, `A Tribe Called Quest`, `https://youtube.com/watch?v=zlA0GHnERLs&feature=share`),
+  new Song(`./assets/theLowEndTheory_albumCover.jpeg`, `Jazz (We've Got)`, `A Tribe Called Quest`, `https://youtube.com/watch?v=zlA0GHnERLs&feature=share`),
   new Song(`./assets/aMadmansDream_albumCover.jpeg`, `A Madman’s Dream (Dirty)`, `The Great East Flatbush Project`, `https://youtube.com/watch?v=6wzeG-iLQTg&feature=share`),
   new Song(`./assets/lacabincalifornia_albumCover.jpeg`, `Runnin’`, `The Pharcyde`, `https://youtube.com/watch?v=MKY_8faQAzw&feature=share`),
   new Song(`./assets/bizzareRide_2_thePharcyde_albumCover.jpeg`, `Passin’ Me By`, `The Pharcyde`, `https://youtube.com/watch?v=QPsm-Fy9rA0&feature=share`),
@@ -57,7 +60,10 @@ const defaultPlaylistItems = [
   new Song(`./assets/theInfamous_albumCover.jpeg`, `Shook Ones, Pt. II`, `Mobb Deep`, `https://youtube.com/watch?v=SLjXz9ghUtk&feature=share`)
 ];
 
-
+/** 
+*Tools for manipulating the display playlist table element
+* @class
+*/
 class TableTools {
 
   static createTD(numTD) {
@@ -73,7 +79,6 @@ class TableTools {
 
   static createSongFragment(song) {
 
-    //console.log(`line 71: The songNumber of the current song is: ${song.getSongNumber()}`);
     let tdElements = this.createTD(4);
 
     let image = document.createElement("img");
@@ -94,6 +99,8 @@ class TableTools {
 
 
     tr.setAttribute("id", `songNumber_${(song.songNumber).toString()}`);
+    tr.setAttribute("class", 'userSong');
+    
     songFragment.append(tr);
 
     tdElements.map((tdElement) => {
@@ -104,7 +111,7 @@ class TableTools {
   }
 
   static appendSongFragmentToTable(songFragment, playlistTableElement) {
-    //console.log(`the type of displayTable is: ${typeof displayTable}`);
+    
     playlistTableElement.append(songFragment);
   }
 
@@ -112,26 +119,19 @@ class TableTools {
     let table = document.querySelector(".playlistTable");
 
     if (table === null) {
-      console.log("Error: No table element found");
+      throw new Error("No table element found");
     } else {
       table.textContent = "";
     }
   }
 }
 
+
+/** 
+* Tools for rendering song data to the display playlist table
+* @class
+*/
 class PlaylistTools extends TableTools {
-  /*
-  Takes in the user's inputted song data as the userSongData type, 
-  instantiates a new Song object, and returns that Song object
-  */
-  static createSongFromUserData(userSongData) {
-    const { userImageURL, userSongName, userArtist, userSongURL } = userSongData;
-
-    let userSong = new Song(userImageURL, userSongName, userArtist, userSongURL);
-
-    //console.log(`This song's number is: ${userSong.songNumber}`)
-    return userSong;
-  }
 
   /*
     Creates a Song from the user's inputs (passed in through in a userSongData object) 
@@ -157,66 +157,95 @@ class PlaylistTools extends TableTools {
   }
 }
 
-
+/** 
+* Tools for managing and manipulating the userPlaylist stored in local storage and the pageLoad_render function called on page load
+@class
+@static
+*/
 class UserPlaylist {
 
   static #storageKey = 'userPlaylist';
 
+
+  /** 
+  * This is the main page load function that initializes and renders all of the content to the page
+  * @returns {undefined}
+  */
   static pageLoad_render() {
     let userPlaylist = this.retriveUserPlaylist();
 
     if (userPlaylist !== null) {
       if (userPlaylist.length > 0) {
-
-        // renders each item in the stored userPlaylist on the page
+        
         userPlaylist.map((songData) => {
           let tempSong = PlaylistTools.createSongFromUserData(songData);
           PlaylistTools.renderSong(tempSong);
         });
-
-        // Renders default playlist items to the page
+        
         PlaylistTools.renderDefaultItems();
       } else if (userPlaylist.length === 0) {
 
-        // Renders default playlist items to the page
         PlaylistTools.renderDefaultItems();
+        
       } else {
-        console.log('Error: The stored userPlaylist had a that was not greater than or eqaul to 0');
+        
+        throw new Error('Error: The stored userPlaylist had a that was not greater than or eqaul to 0');
+        
       }
     } else if (userPlaylist === null) {
-      // create an empty userPlaylist array in localStorage
+      
       localStorage.setItem(this.#storageKey, []);
 
-      // Renders default playlist items to the page
       PlaylistTools.renderDefaultItems();
+      
     } else {
-      console.log(`Error: The stored userPlaylist is doesn't exist and isn't null`);
+      
+      throw new Error(`Error: The stored userPlaylist is doesn't exist and isn't null`);
+      
     }
   }
 
 
-  // UserPlaylist Methods
+  /** 
+  * Deletes the contents of the userPlaylist array in local storage by setting its key to an empty array
+  * @static
+  * @returns {undefined}
+  */
   static deleteStoredUserPlaylistContents() {
     localStorage.setItem(this.#storageKey, JSON.stringify([]));
   }
 
+  /** 
+  * Deletes the reference to userPlaylist array in local storage
+  * @static
+  * @returns {undefined}
+  */
   static dangerouslyDeleteStoredUserPlaylist() {
     localStorage.removeItem('userPlaylist')
   }
 
-
+  /** 
+  * Gets the userPlaylist item from local storage and parses it into an Array
+  * @static
+  * @returns {Array} storedUserPlaylist
+  */
   static retriveUserPlaylist() {
 
     if (JSON.parse(localStorage.getItem(this.#storageKey)) !== null) {
       // return type is Song[]
       return JSON.parse(localStorage.getItem(this.#storageKey));
     } else {
-      console.log('userPlaylist is null (doesn\'t exist in localStorage');
-      return null;
+      throw new Error('userPlaylist is null (doesn\'t exist in localStorage');
     }
 
   }
 
+  /** 
+  * Deletes the reference to userPlaylist array in local storage
+  * @static
+  * param {Array} stagedUserPlaylist - An array of Song objects that the user has added but have not been saved to local storage
+  * @returns {Array} stagedUserPlaylist - The now updated Song object array that is stored in local storage
+  */
   static updateUserPlaylist(stagedUserPlaylist) {
     let currentStoredUserPlaylist = this.retriveUserPlaylist();
 
@@ -245,10 +274,12 @@ class UserPlaylist {
   }
 }
 
-
-
-class InputValidators {
-  static checkForInvalidInputs(object) {
+/** 
+  * Checks if the values of keys in the argument object are either undefined, null, or ''
+  * @param {Object} object - The object to be checked for invalid inputs
+  * @returns {boolean} invalidInput - True if one or more values is invalid, False is none of the values are invalid
+*/
+  function checkForInvalidInputs(object) {
     let invalidInput = false;
 
     Object.values(object).map((value) => {
@@ -259,28 +290,31 @@ class InputValidators {
 
     return invalidInput;
   }
-}
 
-
+/** 
+  * Handles the click of the "Add Song" button 
+  * Actions:
+  * 1) Capturing the user inputs
+  * 2) Validating user inputs
+  * 3) Converting them into Song objects
+  * 4) Rendering the Song objects to the page
+  * 5) Adding the Song objects to the staged_UserPlaylist array
+  * @returns {undefined}
+  */
 function handleAddSongClick() {
-  let userInputs = [
-    userImgURL.value,
-    userSongName.value,
-    userArtist.value,
-    userSongURL.value
-  ]
-
-  let userSongInfo = new userSongData(...userInputs);
-
-  let invalidInputs = InputValidators.checkForInvalidInputs(userSongInfo);
-  //console.log(userSongInfo);
-
-  //console.log(new Song (...userSongInfo));
+  let invalidInputs = checkForInvalidInputs({
+    1: userImgURL.value, 
+    2: userSongName.value, 
+    3: userArtist.value, 
+    4: userSongURL.value
+  });
+  
   if (invalidInputs !== true) {
     PlaylistTools.renderSong(
       // Creates a new Song object from a userSongData object, pushes it to the user playlist, and returns the song object as the argument to its parent renderSong function
       function() {
-        let userSong = PlaylistTools.createSongFromUserData(userSongInfo)
+       let userSong = new Song(userImgURL.value, userSongName.value, userArtist.value, userSongURL.value)
+        console.log(userSong);
         staged_UserPlaylist.push(userSong);
         return userSong;
       }()
@@ -288,7 +322,15 @@ function handleAddSongClick() {
   }
 }
 
+/** 
+* Handles the "Save Playlist" button click.
+* Actions:
+* 1) Updates the userPlaylist in local storage with the items in the staged_userPlaylist array
+* 2) Emptying the staged_userPlaylist array
+* @returns {undefined}
+*/
 function handleSavePlaylistClick() {
+  
   // Updates the UserPlaylist in localStorage with the staged items in the staged_USerPlaylist array
   UserPlaylist.updateUserPlaylist(staged_UserPlaylist);
   
@@ -296,8 +338,20 @@ function handleSavePlaylistClick() {
   staged_UserPlaylist.length = 0;
 }
 
+/** 
+* Handles the "Delete SaveD Playlist" button click.
+* Actions:
+* 1) Asks the user to confirm the deletion of the userPlaylist in local storage
+* 2) Empties the contents of the userPlaylist array in local storage with the deleteSotredPlaylistContents function
+* @returns {undefined}
+*/
+function handleDeletePlaylistClick() { 
+  let confirmDelete = confirm(deletePlaylistMessage);
 
-const handleDeletePlaylistClick = () => { UserPlaylist.deleteStoredUserPlaylistContents() }
+  if (confirmDelete) {
+  UserPlaylist.deleteStoredUserPlaylistContents() ;
+  }
+}
 
 // Render the default playlist items to the page
 UserPlaylist.pageLoad_render();
