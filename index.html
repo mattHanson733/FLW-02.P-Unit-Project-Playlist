@@ -20,28 +20,30 @@
   <h1>My Playlist</h1>
 
   <div class="form">
-    <p>Add a new song:</p>
     <div class="inputs">
+      <p>Add a new song</p>
       <input placeholder="Image URL" class="imgURL-input" value="" />
       <input placeholder="Song Name" class="songName-input" value="" />
       <input placeholder="Artist" class="artist-input" value="" />
       <input placeholder="Song Link Address" class="songURL-input" value="" />
     </div>
     <br>
-    <button id="addSong" onclick='handleAddSongClick()'>Add</button>
+    <p class="song-count"></p>
+    <br>
+    <div class="utility-buttons">
+    <button id="addSong" onclick='handleAddSongClick()'>Add Song</button>
     <button id="storeUserPlaylistButton" onclick='handleSavePlaylistClick()'>Save Playlist</button>
     <button id="deleteUserPlaylistButton" onclick='handleDeletePlaylistClick()'>Delete Saved Playlist</button>
+      <button id="shufflePlaylist" onclick='handleShufflePlaylistClick()'>Shuffle Playlist</button>
+    </div>
   </div>
-
-
-  <div class="heading">
-    <h4>Image</h4>
-    <h4>Song</h4>
-    <h4>Artist</h4>
-    <h4>Song Link</h4>
-  </div>
-
-  <table class="playlistDisplay" id="playlistTable"></table>
+  
+  <table class="playlistDisplay" id="playlistTable">
+    <th>Image</th>
+    <th>Song</th>
+    <th>Artist</th>
+    <th>Song Link</th>
+  </table>
 
 
 </body>

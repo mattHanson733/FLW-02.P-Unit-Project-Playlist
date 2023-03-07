@@ -5,6 +5,7 @@ const userImgURL = document.querySelector(".songURL-input");
 const userSongName = document.querySelector(".songName-input");
 const userArtist = document.querySelector(".artist-input");
 const userSongURL = document.querySelector(".songURL-input");
+const songCount = document.querySelector(".song-count");
 
 
 let playlistTable = document.querySelector('#playlistTable');
@@ -15,7 +16,10 @@ const staged_UserPlaylist = [];
 
 const deletePlaylistMessage = 'Are you sure you want to delete your stored playlist? This action cannot be undone.';
 
-
+/** 
+* The data structure for storing songs and their data
+* @class
+*/
 class Song {
   #songNumber = 0;
 
@@ -30,18 +34,15 @@ class Song {
   * @param {string} songURL - A link to the video of the song
   */
   constructor(imgURL, songName, artist, songURL) {
+    this.imgURL = imgURL;
     this.songName = songName;
     this.artist = artist;
-    this.imgURL = imgURL;
     this.songURL = songURL;
 
     Song.numSongs++;
     this.#songNumber = Song.numSongs;
   }
 
-  /** 
-  * @returns {number} private songNumber property
-  */
   get songNumber() {
     return this.#songNumber;
   }
@@ -77,6 +78,12 @@ class TableTools {
     return tdElements;
   }
 
+  /** 
+  * Creates a playlist entry document fragment containing the data from the Song object passed as an argument
+  * @static
+  * @param {Object} Song - A Song object
+  * @returns {Object} SongFragment
+  */
   static createSongFragment(song) {
 
     let tdElements = this.createTD(4);
@@ -110,18 +117,22 @@ class TableTools {
     return songFragment;
   }
 
+  /** 
+  * Appends a SongFragment to the playlist display table
+  * @static
+  * @param {Object} SongFragment - A document fragment created by the createSongFragment method
+  * @param {Object} playlistTableElement - The global variable storing the playlist display table element
+  */
   static appendSongFragmentToTable(songFragment, playlistTableElement) {
-    
     playlistTableElement.append(songFragment);
   }
 
   static emptyPlaylistTable() {
-    let table = document.querySelector(".playlistTable");
-
-    if (table === null) {
+    
+    if (playlistTable === null) {
       throw new Error("No table element found");
     } else {
-      table.textContent = "";
+      playlistTable.textContent = "";
     }
   }
 }
@@ -143,10 +154,10 @@ class PlaylistTools extends TableTools {
     this.appendSongFragmentToTable(songFragment, playlistTable);
   }
 
-  /*
-  Renders all of the items from the defaultPlaylistItems array to the playlist table on the page
-  
-  *Called on page load*
+  /** 
+  * Renders all of the items from the defaultPlaylistItems array to the playlist table on the page using the renderSong method
+  * --CALLED ON PAGE LOAD--
+  * @static
   */
   static renderDefaultItems() {
     // render the items in 'defaultPlaylistItems' to the playlist table
@@ -163,12 +174,16 @@ class PlaylistTools extends TableTools {
 @static
 */
 class UserPlaylist {
-
+  /** 
+  * local storage key for the user playlist array
+  * @static
+  */
   static #storageKey = 'userPlaylist';
 
 
   /** 
   * This is the main page load function that initializes and renders all of the content to the page
+  * --CALLED ON PAGE LOAD--
   * @returns {undefined}
   */
   static pageLoad_render() {
@@ -178,7 +193,7 @@ class UserPlaylist {
       if (userPlaylist.length > 0) {
         
         userPlaylist.map((songData) => {
-          let tempSong = PlaylistTools.createSongFromUserData(songData);
+          let tempSong = new Song (songData.imgURL, songData.songName, songData.artist, songData.songURL);
           PlaylistTools.renderSong(tempSong);
         });
         
@@ -203,6 +218,8 @@ class UserPlaylist {
       throw new Error(`Error: The stored userPlaylist is doesn't exist and isn't null`);
       
     }
+
+    songCount.textContent = `The current number of songs is: ${Song.numSongs}`;
   }
 
 
@@ -221,7 +238,7 @@ class UserPlaylist {
   * @returns {undefined}
   */
   static dangerouslyDeleteStoredUserPlaylist() {
-    localStorage.removeItem('userPlaylist')
+    localStorage.removeItem('userPlaylist');
   }
 
   /** 
@@ -352,6 +369,26 @@ function handleDeletePlaylistClick() {
   UserPlaylist.deleteStoredUserPlaylistContents() ;
   }
 }
+
+function shuffle(array) {
+  let currentIndex = array.length,  randomIndex;
+
+  // While there remain elements to shuffle.
+  while (currentIndex != 0) {
+
+    // Pick a remaining element.
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex--;
+
+    // And swap it with the current element.
+    [array[currentIndex], array[randomIndex]] = [
+      array[randomIndex], array[currentIndex]];
+  }
+
+  return array;
+}
+
+
 
 // Render the default playlist items to the page
 UserPlaylist.pageLoad_render();
